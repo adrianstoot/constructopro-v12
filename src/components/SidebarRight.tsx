@@ -3,6 +3,7 @@ import { ClipboardList, ListTree, ChevronUp, ChevronDown, Trash2, CheckCircle, X
 import { motion, AnimatePresence } from 'motion/react';
 import { useAppContext } from '../context/AppContext';
 import { CONSTRUCTION_SYSTEMS } from '../utils/config';
+import { CarbonPanel } from './CarbonPanel';
 
 export const SidebarRight: React.FC = () => {
   const { layers, activeSystem, selectedId, selectLayer, moveLayer, removeLayer, isCertified, uValue, mass, updateLayerThickness, normativeErrors, normativeScore } = useAppContext();

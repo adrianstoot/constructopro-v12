@@ -14,6 +14,11 @@ export interface Material {
   textureClass: string;
   textureId?: string;
   image?: string;
+  imageReal?: string;       // v13: photorealistic texture path
+  co2PerKg?: number;        // v13: kgCO₂/kg from DAP
+  iveCode?: string;         // v13: IVE price database code
+  budgetChapter?: string;   // v13: budget chapter assignment
+  mu?: number;              // v13: vapor diffusion resistance factor (μ)
 }
 
 export interface Layer extends Material {
@@ -57,6 +62,74 @@ export interface GamificationState {
   badges: Badge[];
   streak: number;
   totalConfigurations: number;
+}
+
+// ═══ v13: BUDGET TYPES ═══
+export interface BudgetLine {
+  chapter: string;
+  chapterName: string;
+  iveCode: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface BudgetSummary {
+  lines: BudgetLine[];
+  pem: number;              // Presupuesto Ejecución Material
+  gg: number;               // Gastos Generales (13%)
+  bi: number;               // Beneficio Industrial (6%)
+  pec: number;              // Presupuesto Ejecución Contrata
+  iva: number;              // IVA (21%)
+  total: number;
+  chapterBreakdown: { chapter: string; name: string; amount: number; pct: number }[];
+}
+
+// ═══ v13: GLASER CONDENSATION TYPES ═══
+export interface GlaserPoint {
+  position: number;       // distance from exterior [mm]
+  layerName: string;
+  temperature: number;    // °C
+  pSat: number;           // saturated vapor pressure [Pa]
+  pVapor: number;         // actual vapor pressure [Pa]
+  condensation: boolean;
+}
+
+// ═══ v13: EXAM TYPES ═══
+export interface ExamChallenge {
+  id: string;
+  title: string;
+  description: string;
+  systemKey: string;
+  targetU: number;
+  timeMinutes: number;
+  difficulty: 'Principiante' | 'Intermedio' | 'Avanzado' | 'Experto';
+  rubric: { criterion: string; maxPoints: number }[];
+  xpReward: number;
+}
+
+export interface ExamResult {
+  challengeId: string;
+  score: number;
+  maxScore: number;
+  grade: string;
+  timestamp: number;
+  details: { criterion: string; points: number; maxPoints: number; comment: string }[];
+}
+
+// ═══ v13: SAVED COMPARISONS ═══
+export interface SavedConfig {
+  id: string;
+  name: string;
+  systemKey: string;
+  layers: Layer[];
+  uValue: number;
+  mass: number;
+  pem: number;
+  co2: number;
+  timestamp: number;
 }
 
 export interface AppState {
