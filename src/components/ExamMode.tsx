@@ -70,6 +70,10 @@ export const ExamMode: React.FC<ExamModeProps> = ({ open, onClose }) => {
 
     const details: { criterion: string; points: number; maxPoints: number; comment: string }[] = [];
     let totalPoints = 0;
+    
+    const hasOrderError = normativeErrors.some(e => e.toLowerCase().includes('orden'));
+    let forceFail = false;
+    let failReason = '';
 
     selectedExam.rubric.forEach(r => {
       let pts = 0;
@@ -78,10 +82,14 @@ export const ExamMode: React.FC<ExamModeProps> = ({ open, onClose }) => {
       const critLower = r.criterion.toLowerCase();
 
       if (critLower.includes('orden') || critLower.includes('normativo')) {
-        if (normativeScore >= 90) { pts = r.maxPoints; comment = '✅ Orden perfecto según normativa'; }
-        else if (normativeScore >= 70) { pts = Math.floor(r.maxPoints * 0.7); comment = `⚠️ Orden parcialmente correcto (${normativeScore}%)`; }
-        else if (normativeScore >= 40) { pts = Math.floor(r.maxPoints * 0.4); comment = `❌ Orden incorrecto (${normativeScore}%)`; }
-        else { pts = 0; comment = '❌ Orden totalmente incorrecto'; }
+        if (!hasOrderError && normativeScore >= 80 && layers.length >= 2) { 
+          pts = r.maxPoints; comment = '✅ Orden perfecto según normativa'; 
+        } else { 
+          pts = 0; 
+          comment = '❌ ORDEN INCORRECTO: Suspenso automático'; 
+          forceFail = true;
+          failReason = 'Un detalle constructivo con las capas mal ordenadas (EXT→INT) es irrealizable e incumple el CTE.';
+        }
       } else if (r.criterion.includes('U') && r.criterion.includes('≤')) {
         const target = selectedExam.targetU;
         if (uValue > 0 && uValue <= target) { pts = r.maxPoints; comment = `✅ U = ${uValue.toFixed(3)} ≤ ${target}`; }
@@ -119,7 +127,15 @@ export const ExamMode: React.FC<ExamModeProps> = ({ open, onClose }) => {
 
     const maxScore = selectedExam.rubric.reduce((a, r) => a + r.maxPoints, 0);
     const pct = (totalPoints / maxScore) * 100;
-    const grade = pct >= 90 ? 'Matrícula de Honor' : pct >= 75 ? 'Notable' : pct >= 50 ? 'Aprobado' : 'Suspendido';
+    let grade = pct >= 90 ? 'Matrícula de Honor' : pct >= 75 ? 'Notable' : pct >= 50 ? 'Aprobado' : 'Suspendido';
+
+    if (forceFail || normativeErrors.length > 3) {
+      grade = 'Suspendido';
+      if (forceFail) {
+        totalPoints = Math.min(totalPoints, Math.floor(maxScore * 0.4)); // Forzar suspender numéricamente
+        details.unshift({ criterion: '🛑 SUSPENSO DISCIPLINARIO', points: 0, maxPoints: 0, comment: failReason });
+      }
+    }
 
     const examResult: ExamResult = { challengeId: selectedExam.id, score: totalPoints, maxScore, grade, timestamp: Date.now(), details };
     setResult(examResult);
@@ -130,7 +146,7 @@ export const ExamMode: React.FC<ExamModeProps> = ({ open, onClose }) => {
     setExamHistory(newHistory);
     localStorage.setItem('constructopro_exams', JSON.stringify(newHistory));
 
-    if (pct >= 50) completeMission('mission_sate');
+    if (grade !== 'Suspendido') completeMission('mission_sate');
   }, [selectedExam, layers, uValue, normativeErrors, normativeScore, isCertified, co2Total, completeMission, examHistory]);
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -218,9 +234,11 @@ export const ExamMode: React.FC<ExamModeProps> = ({ open, onClose }) => {
                   } else if (critLower.includes('orden') || critLower.includes('normativo')) {
                     status = normativeScore >= 90 ? 'pass' : normativeScore >= 40 ? 'partial' : 'fail';
                   } else if (critLower.includes('compatib') || critLower.includes('tipos')) {
-                    status = normativeErrors.filter(e => e.includes('no es compatible')).length === 0 && layers.length > 0 ? 'pass' : 'partial';
+                    const typeErrs = normativeErrors.filter(e => e.includes('no es compatible')).length;
+                    status = typeErrs === 0 && layers.length > 0 ? 'pass' : typeErrs === 1 ? 'partial' : 'fail';
                   } else if (critLower.includes('todos') || critLower.includes('requeridos') || critLower.includes('completo')) {
-                    status = normativeErrors.filter(e => e.includes('Falta')).length === 0 && layers.length >= 2 ? 'pass' : 'partial';
+                    const missing = normativeErrors.filter(e => e.includes('Falta')).length;
+                    status = missing === 0 && layers.length >= 2 ? 'pass' : missing === 1 ? 'partial' : 'fail';
                   } else {
                     status = layers.length >= 2 ? 'partial' : 'fail';
                   }

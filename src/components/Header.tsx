@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Database, Undo2, Redo2, Trophy, Star, Zap, Receipt, Thermometer, GraduationCap, BarChart3 } from 'lucide-react';
+import { Database, Undo2, Redo2, Trophy, Star, Zap, Receipt, Thermometer, GraduationCap, Building2, FolderOpen } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAppContext } from '../context/AppContext';
 import { getLevelInfo } from '../utils/config';
@@ -8,10 +8,11 @@ interface HeaderProps {
   onOpenBudget: () => void;
   onOpenGlaser: () => void;
   onOpenExam: () => void;
-  onOpenComparison: () => void;
+  onOpenCompanies: () => void;
+  onOpenSavedDetails: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenBudget, onOpenGlaser, onOpenExam, onOpenComparison }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenBudget, onOpenGlaser, onOpenExam, onOpenCompanies, onOpenSavedDetails }) => {
   const { isEngineOnline, loadCSV, undo, redo, canUndo, canRedo, gamification, setShowGamification } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const levelInfo = getLevelInfo(gamification.xp);
@@ -35,10 +36,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBudget, onOpenGlaser, onOp
   };
 
   const toolButtons = [
+    { icon: FolderOpen, label: 'Mis Detalles', onClick: onOpenSavedDetails, color: 'text-teal-400', bg: 'hover:bg-teal-900/30' },
     { icon: Receipt, label: 'Presupuesto', onClick: onOpenBudget, color: 'text-blue-400', bg: 'hover:bg-blue-900/30' },
     { icon: Thermometer, label: 'Glaser', onClick: onOpenGlaser, color: 'text-cyan-400', bg: 'hover:bg-cyan-900/30' },
     { icon: GraduationCap, label: 'Examen', onClick: onOpenExam, color: 'text-purple-400', bg: 'hover:bg-purple-900/30' },
-    { icon: BarChart3, label: 'Comparar', onClick: onOpenComparison, color: 'text-amber-400', bg: 'hover:bg-amber-900/30' },
+    { icon: Building2, label: 'Empresas', onClick: onOpenCompanies, color: 'text-amber-400', bg: 'hover:bg-amber-900/30' },
   ];
 
   return (

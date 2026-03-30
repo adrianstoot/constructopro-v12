@@ -138,7 +138,7 @@ export const SidebarRight: React.FC = () => {
 
         <div className="flex gap-3 mb-4">
           <div className="w-14 h-14 rounded-xl flex items-center justify-center font-black text-3xl border-2 shrink-0 shadow-lg" style={{ backgroundColor: rating.bg, color: rating.color, borderColor: `${rating.color}40`, textShadow: `0 0 12px ${rating.color}40` }}>
-            {rating.label}
+            <span translate="no">{rating.label}</span>
           </div>
           <div className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1.5 bg-slate-800/50 rounded-xl p-2.5 border border-slate-700/40">
             <div className="flex items-center gap-1.5">
@@ -163,7 +163,7 @@ export const SidebarRight: React.FC = () => {
             </div>
             <div className="flex items-center gap-1.5">
               <TrendingDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Esp:</span>
+              <span translate="no" className="text-[9px] font-bold text-slate-400 uppercase">ESP:</span>
               <span className="text-[11px] font-black font-mono text-slate-300">{totalThickMM}</span>
               <span className="text-[8px] font-medium text-slate-500 hidden sm:inline">mm</span>
             </div>

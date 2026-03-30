@@ -9,7 +9,8 @@ import { LoginScreen } from './components/LoginScreen';
 import { BudgetPanel } from './components/BudgetPanel';
 import { GlaserChart } from './components/GlaserChart';
 import { ExamMode } from './components/ExamMode';
-import { ComparisonPanel } from './components/ComparisonPanel';
+import { CompaniesPanel } from './components/CompaniesPanel';
+import { SavedDetailsPanel } from './components/SavedDetailsPanel';
 import { TutorialOverlay } from './components/TutorialOverlay';
 
 export default function App() {
@@ -17,7 +18,8 @@ export default function App() {
   const [showBudget, setShowBudget] = useState(false);
   const [showGlaser, setShowGlaser] = useState(false);
   const [showExam, setShowExam] = useState(false);
-  const [showComparison, setShowComparison] = useState(false);
+  const [showCompanies, setShowCompanies] = useState(false);
+  const [showSavedDetails, setShowSavedDetails] = useState(false);
 
   if (!isAuthenticated) {
     return <LoginScreen onLogin={() => setIsAuthenticated(true)} />;
@@ -30,7 +32,8 @@ export default function App() {
           onOpenBudget={() => setShowBudget(true)}
           onOpenGlaser={() => setShowGlaser(true)}
           onOpenExam={() => setShowExam(true)}
-          onOpenComparison={() => setShowComparison(true)}
+          onOpenCompanies={() => setShowCompanies(true)}
+          onOpenSavedDetails={() => setShowSavedDetails(true)}
         />
         <main className="flex-1 flex overflow-hidden relative">
           <SidebarLeft />
@@ -41,7 +44,8 @@ export default function App() {
         <BudgetPanel open={showBudget} onClose={() => setShowBudget(false)} />
         <GlaserChart open={showGlaser} onClose={() => setShowGlaser(false)} />
         <ExamMode open={showExam} onClose={() => setShowExam(false)} />
-        <ComparisonPanel open={showComparison} onClose={() => setShowComparison(false)} />
+        <CompaniesPanel open={showCompanies} onClose={() => setShowCompanies(false)} />
+        <SavedDetailsPanel open={showSavedDetails} onClose={() => setShowSavedDetails(false)} />
         <TutorialOverlay />
       </div>
     </AppProvider>

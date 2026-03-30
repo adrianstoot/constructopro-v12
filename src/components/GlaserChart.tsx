@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Thermometer, X, AlertTriangle, CheckCircle2, Droplets } from 'lucide-react';
+import { Thermometer, X, AlertTriangle, CheckCircle2, Droplets, Info, BookOpen } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { calculateGlaser } from '../utils/config';
 
@@ -114,6 +114,46 @@ export const GlaserChart: React.FC<GlaserChartProps> = ({ open, onClose }) => {
               <span className={`text-sm font-bold ${hasCondensation ? 'text-red-300' : 'text-emerald-300'}`}>
                 {hasCondensation ? '⚠️ Se detectan condensaciones intersticiales. Revisa la barrera de vapor.' : '✅ No se producen condensaciones. Diseño correcto.'}
               </span>
+            </div>
+
+            {/* ═══ EDUCATIONAL GUIDE (MÉTODO GLASER) ═══ */}
+            <div className="bg-slate-800/40 rounded-xl p-4 border border-indigo-500/30 shadow-inner">
+              <div className="flex items-center gap-2 mb-3">
+                <BookOpen className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-sm font-black text-indigo-300 uppercase tracking-widest">Guía Didáctica: Método de Glaser</h3>
+              </div>
+              <p className="text-xs text-slate-300 mb-4 leading-relaxed">
+                El <strong>Método de Glaser</strong> (basado en la norma UNE-EN ISO 13788) es un procedimiento gráfico-analítico utilizado en edificación para determinar el riesgo de <strong>condensaciones intersticiales</strong>. Es decir, preevalúa si el vapor de agua generado en el interior del edificio condensará dentro del propio cerramiento al atravesar las distintas capas hacia el exterior frío.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-900/50 p-3 rounded-lg border border-amber-500/30">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                    <span className="text-xs font-bold text-amber-400">Presión de Vapor (Pv)</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Es la presión real que ejerce el vapor de agua presente en el aire. El vapor viaja desde las zonas de mayor presión (normalmente el interior calefactado) hacia las zonas de menor presión (el exterior). Mide la "cantidad" de vapor viajando por el muro.
+                  </p>
+                </div>
+                
+                <div className="bg-slate-900/50 p-3 rounded-lg border border-blue-500/30">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                    <span className="text-xs font-bold text-blue-400">Presión de Saturación (Psat)</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Es la presión máxima que puede soportar el aire a una temperatura dada antes de que el vapor se convierta en agua líquida. Al acercarnos al exterior (frío), la temperatura de las capas baja, y por tanto, su capacidad de albergar vapor (Psat) disminuye dramáticamente.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 p-3 bg-red-900/10 border border-red-900/30 rounded-lg flex items-start gap-3">
+                <Info className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  <strong>¿Cuándo hay Condensación?</strong> Si en algún punto del muro la curva de la Presión de Vapor (Pv, naranja) llega a tocar y superar la curva de la Presión de Saturación (Psat, azul), significa que el vapor no puede sostenerse en estado gaseoso y se condensa dentro del muro, creando patologías graves estructurales y moho. La curva Pv siempre debe estar por debajo de la Psat. Ubicar el aislamiento térmico por el exterior (SATE) y colocar barreras de vapor en la cara caliente ayuda a prevenir esto.
+                </p>
+              </div>
             </div>
 
             {/* Chart */}
