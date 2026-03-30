@@ -3,8 +3,36 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Box, Layers } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import { TEXTURE_MAP } from '../utils/config';
 
-function generateTexture(type: string, color: string, textureId?: string): THREE.CanvasTexture {
+// Texture loader with cache
+const loader = new THREE.TextureLoader();
+const realTextureCache: Record<string, THREE.Texture | null> = {};
+
+function loadRealTexture(textureId?: string): THREE.Texture | null {
+  if (!textureId) return null;
+  if (realTextureCache[textureId] !== undefined) return realTextureCache[textureId];
+  
+  const path = TEXTURE_MAP[textureId];
+  if (!path || path.endsWith('.svg')) { realTextureCache[textureId] = null; return null; }
+  
+  const base = (import.meta as any).env?.BASE_URL || '/constructopro-v12/';
+  const fullPath = path.startsWith('/') ? base.replace(/\/$/, '') + path : path;
+  
+  try {
+    const tex = loader.load(fullPath);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 2);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    realTextureCache[textureId] = tex;
+    return tex;
+  } catch {
+    realTextureCache[textureId] = null;
+    return null;
+  }
+}
+
+function generateFallbackTexture(type: string, color: string, textureId?: string): THREE.CanvasTexture {
   const size = 256;
   const cvs = document.createElement('canvas');
   cvs.width = size; cvs.height = size;
@@ -14,64 +42,17 @@ function generateTexture(type: string, color: string, textureId?: string): THREE
   ctx.fillRect(0, 0, size, size);
 
   if (type === 'brick') {
-    const isCaravista = textureId?.includes('caravista');
-    const isHueco = textureId?.includes('hueco');
-    const isTermo = textureId?.includes('termoarcilla');
-    const isBloque = textureId?.includes('bloque');
-
-    if (isTermo) {
-      const bH = 40, bW = 128;
-      ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 2;
-      for (let dy = 0; dy < size; dy += bH) {
-        ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
+    const bH = 24, bW = 64;
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 2;
+    for (let dy = 0; dy < size; dy += bH) {
+      ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
+      const off = (Math.floor(dy / bH) % 2) === 0 ? 0 : bW / 2;
+      for (let dx = off; dx < size; dx += bW) {
+        ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy + bH); ctx.stroke();
       }
-      ctx.fillStyle = 'rgba(0,0,0,0.15)';
-      for (let dy = 8; dy < size; dy += bH) {
-        for (let dx = 12; dx < size; dx += 24) {
-          ctx.beginPath(); ctx.arc(dx, dy + 12, 8, 0, Math.PI * 2); ctx.fill();
-        }
-      }
-    } else if (isHueco) {
-      const bH = 20, bW = 64;
-      ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5;
-      for (let dy = 0; dy < size; dy += bH) {
-        ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
-        const off = (Math.floor(dy / bH) % 2) === 0 ? 0 : bW / 2;
-        for (let dx = off; dx < size; dx += bW) {
-          ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy + bH); ctx.stroke();
-        }
-      }
-      ctx.fillStyle = 'rgba(0,0,0,0.12)';
-      for (let dy = 4; dy < size; dy += bH) {
-        for (let dx = 12; dx < size; dx += 20) {
-          ctx.fillRect(dx, dy, 10, bH - 8);
-        }
-      }
-    } else if (isCaravista) {
-      const bH = 16, bW = 64;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 2;
-      for (let dy = 0; dy < size; dy += bH) {
-        ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
-        const off = (Math.floor(dy / bH) % 2) === 0 ? 0 : bW / 2;
-        for (let dx = off; dx < size; dx += bW) {
-          ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy + bH); ctx.stroke();
-        }
-      }
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
-      for (let i = 0; i < 1200; i++) ctx.fillRect(Math.random() * size, Math.random() * size, 1 + Math.random(), 1 + Math.random());
-    } else {
-      const bH = 24, bW = 64;
-      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 2;
-      for (let dy = 0; dy < size; dy += bH) {
-        ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
-        const off = (Math.floor(dy / bH) % 2) === 0 ? 0 : bW / 2;
-        for (let dx = off; dx < size; dx += bW) {
-          ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy + bH); ctx.stroke();
-        }
-      }
-      ctx.fillStyle = 'rgba(0,0,0,0.06)';
-      for (let i = 0; i < 800; i++) ctx.fillRect(Math.random() * size, Math.random() * size, 1 + Math.random() * 2, 1 + Math.random() * 2);
     }
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    for (let i = 0; i < 800; i++) ctx.fillRect(Math.random() * size, Math.random() * size, 1 + Math.random() * 2, 1 + Math.random() * 2);
   } else if (type === 'insulation') {
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1;
     for (let dy = 4; dy < size; dy += 10) {
@@ -79,38 +60,12 @@ function generateTexture(type: string, color: string, textureId?: string): THREE
       for (let dx = 0; dx < size; dx += 8) ctx.quadraticCurveTo(dx + 4, dy - 5, dx + 8, dy);
       ctx.stroke();
     }
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    for (let dy = 8; dy < size; dy += 10) {
-      ctx.beginPath(); ctx.moveTo(0, dy);
-      for (let dx = 0; dx < size; dx += 8) ctx.quadraticCurveTo(dx + 4, dy + 5, dx + 8, dy);
-      ctx.stroke();
-    }
   } else if (type === 'foam') {
     ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 0.5;
-    for (let i = 0; i < 400; i++) {
-      ctx.beginPath(); ctx.arc(Math.random() * size, Math.random() * size, 1 + Math.random() * 3, 0, Math.PI * 2); ctx.stroke();
-    }
+    for (let i = 0; i < 400; i++) { ctx.beginPath(); ctx.arc(Math.random() * size, Math.random() * size, 1 + Math.random() * 3, 0, Math.PI * 2); ctx.stroke(); }
   } else if (type === 'waterproof') {
-    const isDanosa = textureId?.includes('danosa');
-    const isVapor = textureId?.includes('vapor');
-    if (isDanosa) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
-      for (let d = -size; d < size * 2; d += 4) {
-        ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d - size, size); ctx.stroke();
-      }
-    } else if (isVapor) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5;
-      ctx.setLineDash([4, 6]);
-      for (let dy = 4; dy < size; dy += 8) {
-        ctx.beginPath(); ctx.moveTo(0, dy); ctx.lineTo(size, dy); ctx.stroke();
-      }
-      ctx.setLineDash([]);
-    } else {
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
-      for (let d = -size; d < size * 2; d += 6) {
-        ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d - size, size); ctx.stroke();
-      }
-    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+    for (let d = -size; d < size * 2; d += 6) { ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d - size, size); ctx.stroke(); }
   } else if (type === 'plaster') {
     ctx.fillStyle = 'rgba(0,0,0,0.02)';
     for (let i = 0; i < 2000; i++) ctx.fillRect(Math.random() * size, Math.random() * size, 0.5, 0.5);
@@ -139,7 +94,6 @@ export const Viewport3D: React.FC = () => {
 
     let w = containerRef.current.clientWidth || 800;
     let h = containerRef.current.clientHeight || 500;
-
     const asp = w / h;
     const f = 130;
 
@@ -261,15 +215,28 @@ export const Viewport3D: React.FC = () => {
       const isFaded = !!(hoveredId || selectedId) && !isTargeted;
 
       const geo = new THREE.BoxGeometry(BLOCK_W, BLOCK_H, d);
-      const texture = generateTexture(l.textureClass, l.color, l.textureId);
-      const mat = new THREE.MeshLambertMaterial({
+      
+      // Try to load photorealistic texture first, fall back to procedural
+      let texture: THREE.Texture;
+      const realTex = loadRealTexture(l.textureId);
+      if (realTex) {
+        texture = realTex.clone();
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(2, 2);
+      } else {
+        texture = generateFallbackTexture(l.textureClass, l.color, l.textureId);
+      }
+      
+      const mat = new THREE.MeshStandardMaterial({
         map: texture,
-        color: l.color,
+        color: realTex ? 0xffffff : l.color,  // Don't tint if using real texture
         transparent: isFaded,
         opacity: isFaded ? 0.15 : 1.0,
         emissive: isTargeted ? new THREE.Color(l.color) : new THREE.Color(0x000000),
         emissiveIntensity: isTargeted ? 0.3 : 0,
         depthWrite: !isFaded,
+        roughness: 0.7,
+        metalness: 0.0,
       });
 
       const mesh = new THREE.Mesh(geo, mat);
@@ -341,7 +308,16 @@ export const Viewport3D: React.FC = () => {
                   l.instanceId === hoveredId ? 'bg-orange-500/15 text-orange-300' : 'text-slate-400 hover:bg-slate-800/50'
                 }`}
               >
-                <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 border border-white/10" style={{ backgroundColor: l.color }} />
+                {/* Show real texture thumbnail in legend */}
+                {(l as any).image && !(l as any).image.endsWith('.svg') ? (
+                  <img src={(() => {
+                    const base = (import.meta as any).env?.BASE_URL || '/constructopro-v12/';
+                    const imgPath = (l as any).image as string;
+                    return imgPath.startsWith('/') ? base.replace(/\/$/, '') + imgPath : imgPath;
+                  })()} className="w-2.5 h-2.5 rounded-sm object-cover flex-shrink-0" alt="" />
+                ) : (
+                  <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 border border-white/10" style={{ backgroundColor: l.color }} />
+                )}
                 <span className="truncate font-semibold flex-1">{l.Nombre}</span>
                 <span className="text-[7px] font-mono text-slate-500 shrink-0">{parseInt(l.EspesorRaw) || l.EspesorVirtualMM}mm</span>
                 <span className="text-[7px] font-bold shrink-0" style={{ color: i === 0 ? '#60a5fa' : i === layers.length - 1 ? '#a78bfa' : '#475569' }}>

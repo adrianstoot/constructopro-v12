@@ -149,15 +149,16 @@ export const SidebarLeft: React.FC = () => {
                               className="w-14 shrink-0 relative overflow-hidden flex items-center justify-center rounded-l-[9px]"
                               style={{ borderRight: `1px solid ${accent.glow}30` }}
                             >
-                              {(mat as any).image ? (
+                              {(mat as any).image && !(mat as any).image.endsWith('.svg') ? (
                                 <>
                                   <img 
-                                    src={(mat as any).image} 
+                                    src={(() => { const base = (import.meta as any).env?.BASE_URL || '/'; const imgPath = (mat as any).image as string; return imgPath.startsWith('/') ? base.replace(/\/$/, '') + imgPath : imgPath; })()}
                                     className="absolute inset-0 w-full h-full object-cover filter saturate-50 group-hover:saturate-100 transition-all duration-500 scale-100 group-hover:scale-110" 
                                     alt={mat.type}
+                                    loading="lazy"
                                   />
-                                  <div className="absolute inset-0 transition-opacity duration-500 opacity-60 group-hover:opacity-0 mix-blend-multiply" style={{ backgroundColor: accent.glow }} />
-                                  <div className="absolute inset-0 transition-opacity duration-500 opacity-40 group-hover:opacity-0" style={{ backgroundColor: '#0f172a' }} />
+                                  <div className="absolute inset-0 transition-opacity duration-500 opacity-40 group-hover:opacity-0 mix-blend-multiply" style={{ backgroundColor: accent.glow }} />
+                                  <div className="absolute inset-0 transition-opacity duration-500 opacity-30 group-hover:opacity-0" style={{ backgroundColor: '#0f172a' }} />
                                 </>
                               ) : (
                                 <>
