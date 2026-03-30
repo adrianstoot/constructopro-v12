@@ -45,8 +45,10 @@ export const SidebarRight: React.FC = () => {
       initial={{ x: 380 }}
       animate={{ x: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="w-[380px] bg-[#31416d] backdrop-blur-xl border-l border-slate-500/30 flex flex-col overflow-hidden shrink-0 z-20 shadow-[min(-10px,0)_0_30px_rgba(0,0,0,0.4)]"
+      className="w-[380px] flex flex-col overflow-hidden shrink-0 z-20 border-l border-slate-700/50 shadow-[-10px_0_40px_rgba(0,0,0,0.6),inset_1px_0_0_rgba(255,255,255,0.05)] bg-slate-900/90 backdrop-blur-2xl relative"
     >
+      <div className="absolute inset-0 pointer-events-none border-l border-white/5" />
+      
       {/* ═══════════ NORMATIVE GUIDE ═══════════ */}
       <div className="border-b border-slate-800/80 bg-slate-900/10">
         <div className="p-4 pb-3 flex justify-between items-center">
@@ -227,15 +229,19 @@ export const SidebarRight: React.FC = () => {
                     </div>
 
                     <div className="w-16 shrink-0 relative flex items-center justify-center bg-slate-900/50 border-r border-slate-700/30 overflow-hidden">
-                      {(layer as any).image && !isAir ? (
+                      {(layer as any).image && !(layer as any).image.endsWith('.svg') && !isAir ? (
                         <>
-                          <img src={(layer as any).image} className="absolute inset-0 w-full h-full object-cover filter saturate-50 group-hover:saturate-100 transition-all duration-300 transform group-hover:scale-105" alt="" />
+                          <img 
+                            src={(() => { const base = (import.meta as any).env?.BASE_URL || '/constructopro-v12/'; const imgPath = (layer as any).image as string; return imgPath.startsWith('/') ? base.replace(/\/$/, '') + imgPath : imgPath; })()}
+                            className="absolute inset-0 w-full h-full object-cover filter saturate-50 group-hover:saturate-100 transition-all duration-300 transform group-hover:scale-105" 
+                            alt="" 
+                          />
                           <div className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style={{ backgroundColor: layer.color }} />
                           <div className="absolute inset-0 opacity-30 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none bg-[#0f172a]" />
                         </>
                       ) : (
-                        <div className="w-8 h-8 rounded border flex items-center justify-center shadow-inner relative z-10" style={{ backgroundColor: isAir ? 'rgba(120,200,255,0.15)' : `${layer.color}25`, borderColor: isAir ? 'rgba(120,200,255,0.4)' : `${layer.color}60` }}>
-                          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: isAir ? 'rgba(120,200,255,0.6)' : layer.color }}></div>
+                        <div className="w-8 h-8 rounded border flex items-center justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] relative z-10" style={{ backgroundColor: isAir ? 'rgba(120,200,255,0.15)' : `${layer.color}25`, borderColor: isAir ? 'rgba(120,200,255,0.4)' : `${layer.color}60` }}>
+                          <div className="w-3 h-3 rounded-sm shadow-sm" style={{ backgroundColor: isAir ? 'rgba(120,200,255,0.6)' : layer.color }}></div>
                         </div>
                       )}
                       <div className="absolute left-0 top-0 bottom-0 w-[4px] z-10" style={{ backgroundColor: layer.color, boxShadow: `0 0 10px ${layer.color}` }} />

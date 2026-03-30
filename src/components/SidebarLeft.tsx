@@ -43,8 +43,10 @@ export const SidebarLeft: React.FC = () => {
       initial={{ x: -280 }}
       animate={{ x: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="w-[340px] bg-[#31416d] backdrop-blur-xl border-r border-slate-500/30 flex flex-col transition-all duration-300 shrink-0 z-20 shadow-2xl relative"
+      className="w-[300px] flex flex-col z-20 border-r border-slate-700/50 shadow-[10px_0_40px_rgba(0,0,0,0.6),inset_-1px_0_0_rgba(255,255,255,0.05)] bg-slate-900/90 backdrop-blur-2xl relative"
     >
+      <div className="absolute inset-0 pointer-events-none border-r border-white/5" />
+
       {/* System Selector */}
       <div className="p-4 pb-3 border-b border-slate-800/60">
         <label className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-2 flex items-center">

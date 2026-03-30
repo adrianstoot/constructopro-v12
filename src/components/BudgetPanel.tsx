@@ -76,10 +76,27 @@ export const BudgetPanel: React.FC<BudgetPanelProps> = ({ open, onClose }) => {
           <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scroll">
             
             {/* Project Info */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 grid grid-cols-3 gap-4">
-              <div><span className="text-[9px] font-bold text-slate-500 uppercase block">Proyecto</span><span className="text-sm font-bold text-white">Detalle Constructivo</span></div>
-              <div><span className="text-[9px] font-bold text-slate-500 uppercase block">Superficie</span><span className="text-sm font-bold text-white">{area} m²</span></div>
-              <div><span className="text-[9px] font-bold text-slate-500 uppercase block">Fecha</span><span className="text-sm font-bold text-white">{new Date().toLocaleDateString('es-ES')}</span></div>
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 grid grid-cols-3 gap-4 items-center">
+              <div>
+                <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Proyecto</span>
+                <span className="text-sm font-bold text-white">Detalle Constructivo</span>
+              </div>
+              <div>
+                <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Superficie (m²)</span>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    min="1" 
+                    value={area}
+                    onChange={(e) => useAppContext().setArea(parseFloat(e.target.value) || 0)}
+                    className="w-24 bg-slate-900 border border-blue-500/50 rounded px-2 py-1 text-sm font-bold text-white font-mono focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 shadow-inner"
+                  />
+                </div>
+              </div>
+              <div>
+                <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Fecha</span>
+                <span className="text-sm font-bold text-white">{new Date().toLocaleDateString('es-ES')}</span>
+              </div>
             </div>
 
             {layers.length === 0 ? (

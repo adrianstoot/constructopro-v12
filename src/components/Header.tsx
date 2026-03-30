@@ -45,8 +45,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBudget, onOpenGlaser, onOp
     <motion.header 
       initial={{ y: -60 }} animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="h-14 border-b border-slate-800/80 glass-panel flex items-center justify-between px-4 z-50 shrink-0"
+      className="h-14 border-b border-slate-700/50 bg-slate-900/90 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_-1px_0_rgba(255,255,255,0.05)] flex items-center justify-between px-4 z-50 shrink-0 relative"
     >
+      <div className="absolute inset-0 pointer-events-none border-b border-white/5" />
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">CP</div>
         <h1 className="text-lg font-semibold tracking-tight text-slate-200">
